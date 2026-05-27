@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/mark3labs/mcp-go/mcp"
@@ -152,10 +153,27 @@ func handleScreenshot(c *Client) func(context.Context, mcp.CallToolRequest) (*mc
 		if quality, ok := optFloat(r, "quality"); ok {
 			q.Set("quality", fmt.Sprintf("%d", int(quality)))
 		}
+		// If outputPath is provided, request raw bytes from /screenshot and write to disk
+		if outputPath := optString(r, "outputPath"); outputPath != "" {
+			q.Set("raw", "true")
+		}
+
 		body, code, err := c.Get(ctx, "/screenshot", q)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
+		if code >= 400 {
+			return resultFromBytes(body, code)
+		}
+
+		// Write raw image to disk if outputPath was requested
+		if outputPath := optString(r, "outputPath"); outputPath != "" {
+			if writeErr := os.WriteFile(outputPath, body, 0644); writeErr != nil {
+				return mcp.NewToolResultError(fmt.Sprintf("failed to write screenshot to %s: %v", outputPath, writeErr)), nil
+			}
+			return mcp.NewToolResultText(fmt.Sprintf("Screenshot saved to %s", outputPath)), nil
+		}
+
 		return resultFromBytes(body, code)
 	}
 }

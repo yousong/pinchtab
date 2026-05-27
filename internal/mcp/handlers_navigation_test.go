@@ -203,6 +203,22 @@ func TestHandleScreenshot(t *testing.T) {
 	}
 }
 
+func TestHandleScreenshotWithOutputPath(t *testing.T) {
+	srv := mockPinchTab()
+	defer srv.Close()
+
+	tmpFile := t.TempDir() + "/test-screenshot.jpg"
+	r := callTool(t, "pinchtab_screenshot", map[string]any{
+		"outputPath": tmpFile,
+		"quality":    float64(60),
+	}, srv)
+
+	text := resultText(t, r)
+	if !strings.Contains(text, tmpFile) {
+		t.Errorf("expected file path %q in response, got %s", tmpFile, text)
+	}
+}
+
 func TestHandleGetText(t *testing.T) {
 	srv := mockPinchTab()
 	defer srv.Close()
