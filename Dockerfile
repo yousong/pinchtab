@@ -52,6 +52,7 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
+    font-noto-cjk \
     dumb-init
 
 # Non-root user; /data is the persistent volume mount point

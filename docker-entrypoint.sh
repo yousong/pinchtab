@@ -20,4 +20,9 @@ if [ -z "${PINCHTAB_CONFIG:-}" ] && [ ! -f "$default_config_path" ]; then
   fi
 fi
 
+# Default to pinchtab server if no arguments provided
+if [ $# -eq 0 ]; then
+  set -- pinchtab server
+fi
+
 exec "$@"

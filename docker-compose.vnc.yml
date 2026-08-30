@@ -1,0 +1,30 @@
+services:
+  pinchtab-vnc:
+    build:
+      context: .
+      dockerfile: Dockerfile.vnc
+    container_name: pinchtab-vnc
+    ports:
+      - "9867:9867"
+      - "5800:5800"
+      - "5900:5900"
+    volumes:
+      - pinchtab-vnc-data:/data
+    environment:
+      PINCHTAB_TOKEN: ${PINCHTAB_TOKEN:-}
+      VNC_RESOLUTION: ${VNC_RESOLUTION:-1920x1080}
+    restart: unless-stopped
+    shm_size: "2gb"
+    tmpfs:
+      - /tmp:size=512m,noexec,nosuid,nodev
+      - /run:size=64m,noexec,nosuid,nodev
+    # Uncomment for Intel GPU acceleration
+    # devices:
+    #   - /dev/dri:/dev/dri
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 4g
+    cpus: "2.0"
+
+volumes:
+  pinchtab-vnc-data:
